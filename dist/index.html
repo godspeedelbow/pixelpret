@@ -53,8 +53,13 @@ function miniature(board){return `<div class="mini" aria-hidden="true">${board.m
 function renderGallery(){
  const items=[{name:'Nu aan het maken',board:cells,live:true},...designs.map((d,i)=>({name:d.name,board:d.cells})),...['Hartje','Bloemetje','Smiley'].map(name=>({name,board:pattern(name)}))];
  const pages=Math.ceil(items.length/5);galleryPage=Math.min(galleryPage,pages-1);
- $('#templates').replaceChildren();[{name:'Zelf maken',board:pattern('Zelf maken')},...items.slice(galleryPage*5,galleryPage*5+5)].forEach(item=>{const b=document.createElement('button');b.className='template'+(item.live?' active live':'');b.title=item.live?'Je ontwerp groeit hier mee':item.name;b.setAttribute('aria-label',b.title);b.innerHTML=miniature(item.board);const label=document.createElement('span');label.textContent=item.name;b.append(label);if(item.live){b.setAttribute('aria-current','true')}else{b.onclick=()=>{remember();cells=[...item.board];templateActive(item.name);render()}}$('#templates').append(b)});
+ $('#templates').replaceChildren();[{name:'Zelf maken',board:pattern('Zelf maken')},...items.slice(galleryPage*5,galleryPage*5+5)].forEach(item=>{const b=document.createElement('button');b.className='template'+(item.live?' active live':'');b.title=item.live?'Je ontwerp groeit hier mee':item.name;b.setAttribute('aria-label',b.title);b.innerHTML=miniature(item.board);const label=document.createElement('span');label.textContent=item.name;b.append(label);if(item.live){b.setAttribute('aria-current','true')}else{b.onclick=()=>{if(!preserveCurrentDesign())return;remember();cells=[...item.board];galleryPage=0;templateActive(item.name);render()}}$('#templates').append(b)});
  $('#galleryPage').textContent=`${galleryPage+1}/${pages}`;$('#prevDesigns').disabled=galleryPage===0;$('#nextDesigns').disabled=galleryPage===pages-1;
+}
+function preserveCurrentDesign(){
+ if(!cells.some(c=>c>=0)||designs.some(d=>d.cells.every((c,i)=>c===cells[i])))return true;
+ const updated=[{name:'Ontwerp '+(designs.length+1),cells:[...cells]},...designs];
+ try{localStorage.setItem('pixelpret-designs',JSON.stringify(updated));designs=updated;return true}catch(e){showToast('Bewaren lukt niet. Je huidige ontwerp blijft open.');return false}
 }
 function showToast(message){$('#toast').textContent=message;$('#toast').classList.add('show');setTimeout(()=>$('#toast').classList.remove('show'),3000)}
 $('#saveDesign').onclick=()=>{const design={name:'Ontwerp '+(designs.length+1),cells:[...cells]};const updated=[design,...designs];try{localStorage.setItem('pixelpret-designs',JSON.stringify(updated));designs=updated;galleryPage=0;renderGallery();showToast('Bewaard in deze browser! ✨')}catch(e){showToast('Bewaren lukt niet: browseropslag is vol. Download je patroon.')}};
