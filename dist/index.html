@@ -44,9 +44,9 @@ grid.addEventListener('pointerdown',e=>{if(e.button!==0)return;e.preventDefault(
 function templateActive(name){activeTemplate=name;document.querySelectorAll('.template').forEach(b=>b.classList.toggle('active',b.dataset.name===name))}
 function miniature(board){return `<div class="mini" aria-hidden="true">${board.map(c=>`<i style="--c:${c<0?'#ebe8df':palette[c][1]}"></i>`).join('')}</div>`}
 function renderGallery(){
- const items=[{name:'Nu aan het maken',board:cells,live:true},...designs.map((d,i)=>({name:d.name,board:d.cells})),...['Hartje','Bloemetje','Smiley','Zelf maken'].map(name=>({name,board:pattern(name)}))];
- const pages=Math.ceil(items.length/6);galleryPage=Math.min(galleryPage,pages-1);
- $('#templates').replaceChildren();items.slice(galleryPage*6,galleryPage*6+6).forEach(item=>{const b=document.createElement('button');b.className='template'+(item.live?' active live':'');b.title=item.live?'Je ontwerp groeit hier mee':item.name;b.setAttribute('aria-label',b.title);b.innerHTML=miniature(item.board);const label=document.createElement('span');label.textContent=item.name;b.append(label);if(item.live){b.setAttribute('aria-current','true')}else{b.onclick=()=>{remember();cells=[...item.board];templateActive(item.name);render()}}$('#templates').append(b)});
+ const items=[{name:'Nu aan het maken',board:cells,live:true},...designs.map((d,i)=>({name:d.name,board:d.cells})),...['Hartje','Bloemetje','Smiley'].map(name=>({name,board:pattern(name)}))];
+ const pages=Math.ceil(items.length/5);galleryPage=Math.min(galleryPage,pages-1);
+ $('#templates').replaceChildren();[{name:'Zelf maken',board:pattern('Zelf maken')},...items.slice(galleryPage*5,galleryPage*5+5)].forEach(item=>{const b=document.createElement('button');b.className='template'+(item.live?' active live':'');b.title=item.live?'Je ontwerp groeit hier mee':item.name;b.setAttribute('aria-label',b.title);b.innerHTML=miniature(item.board);const label=document.createElement('span');label.textContent=item.name;b.append(label);if(item.live){b.setAttribute('aria-current','true')}else{b.onclick=()=>{remember();cells=[...item.board];templateActive(item.name);render()}}$('#templates').append(b)});
  $('#galleryPage').textContent=`${galleryPage+1}/${pages}`;$('#prevDesigns').disabled=galleryPage===0;$('#nextDesigns').disabled=galleryPage===pages-1;
 }
 function showToast(message){$('#toast').textContent=message;$('#toast').classList.add('show');setTimeout(()=>$('#toast').classList.remove('show'),3000)}
